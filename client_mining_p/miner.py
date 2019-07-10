@@ -1,5 +1,6 @@
 import hashlib
 import requests
+import time
 
 import sys
 
@@ -43,13 +44,18 @@ if __name__ == '__main__':
     # Run forever until interrupted
     while True:
         last_proof = fetch_last_proof()
+        print("Calculating proof")
+        start_time = time.time()
         proof = proof_of_work(last_proof)
+        end_time = time.time()
+        time_elapsed = end_time - start_time
+        print(f"Proof calculated in {time_elapsed} seconds.")
         response = mine_block(proof)
         if response:
             if response["message"] == 'New Block Forged':
                 coins_mined += 1
                 print(response["message"])
-                print(coins_mined)
+                print(f'{coins_mined} coins mined.')
             else:
                 print(response["message"])
         else:
