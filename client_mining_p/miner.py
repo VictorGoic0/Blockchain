@@ -9,7 +9,7 @@ import sys
 def valid_proof(last_proof, proof):
     guess = f'{last_proof}{proof}'.encode()
     guess_hash = hashlib.sha256(guess).hexdigest()
-    return guess_hash[:1] == "0"
+    return guess_hash[:6] == "000000"
 
 def proof_of_work(last_proof):
     proof = 0
@@ -48,7 +48,6 @@ if __name__ == '__main__':
         if response:
             if response["message"] == 'New Block Forged':
                 coins_mined += 1
-                print(proof)
                 print(response["message"])
                 print(coins_mined)
             else:
