@@ -220,10 +220,12 @@ blockchain = Blockchain()
 def mine():
     # We run the proof of work algorithm to get the next proof...
     values = request.get_json()
+    required = ['proof', 'sender']
 
-    if 'proof' not in values:
+    if not all(k in values for k in required):
         return 'Missing Values', 401
     
+    sender = values['sender']
     last_block = blockchain.last_block
     last_proof = last_block['proof']
     proof = values['proof']
@@ -231,7 +233,7 @@ def mine():
 
     if valid_proof:
         # Forge the new Block by adding it to the chain
-        block_chain.new_transaction(sender="0", recipient=node_identifier, amount=1)
+        block_chain.new_transaction(sender=sender, recipient=node_identifier, amount=1)
         previous_hash = blockchain.hash(last_block)
         block = blockchain.new_block(proof, previous_hash)
 
