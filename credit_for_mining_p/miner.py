@@ -1,6 +1,7 @@
 import hashlib
 import requests
 import time
+import uuid
 
 import sys
 
@@ -25,13 +26,27 @@ def fetch_last_proof():
     data = response.json()
     return data['last_proof']
 
-def mine_block(proof):
+def mine_block(proof, uuid):
     URL = 'http://localhost:5000/mine'
     request = {
-        "proof": proof
+        "proof": proof,
+        "sender": uuid
     } 
     response = requests.post(url = URL, json = request)
     return response.json()
+
+def get_uuid():
+    try:
+        id_file = open('my_id.txt')
+        uuid = id_file.read()
+        print(uuid, '<--from file')
+        return uuid
+    except:
+        id_file = open('my_id.txt', 'w')
+        uuid = uuid.uuid1()
+        id_file.write(uuid)
+        return uuid        
+
 
 if __name__ == '__main__':
     # What node are we interacting with?
@@ -50,7 +65,8 @@ if __name__ == '__main__':
         end_time = time.time()
         time_elapsed = end_time - start_time
         print(f"Proof calculated in {time_elapsed} seconds.")
-        response = mine_block(proof)
+        uuid = get_uuid()
+        response = mine_block(proof, uuid)
         if response:
             if response["message"] == 'New Block Forged':
                 coins_mined += 1
