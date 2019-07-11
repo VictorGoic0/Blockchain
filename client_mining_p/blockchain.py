@@ -131,12 +131,13 @@ def mine():
         return 'Missing Values', 401
     
     last_block = blockchain.last_block
-    proof = values['proof']
     last_proof = last_block['proof']
+    proof = values['proof']
     valid_proof = blockchain.valid_proof(last_proof, proof)
 
     if valid_proof:
-        # Forge the new BLock by adding it to the chain
+        # Forge the new Block by adding it to the chain
+        block_chain.new_transaction(sender="0", recipient=node_identifier, amount=1)
         previous_hash = blockchain.hash(last_block)
         block = blockchain.new_block(proof, previous_hash)
 
