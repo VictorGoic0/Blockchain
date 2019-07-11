@@ -11,7 +11,7 @@ import sys
 def valid_proof(last_proof, proof):
     guess = f'{last_proof}{proof}'.encode()
     guess_hash = hashlib.sha256(guess).hexdigest()
-    return guess_hash[:2] == "00"
+    return guess_hash[:6] == "000000"
 
 def proof_of_work(last_proof):
     proof = 0
@@ -40,12 +40,11 @@ def get_uuid():
         id_file = open('my_id.txt')
         unique_id = id_file.read()
         if unique_id:
-            print(unique_id, '<--from file')
             id_file.close()
             return unique_id
     except:
         id_file = open('my_id.txt', 'w')
-        new_uuid = str(uuid.uuid1())
+        new_uuid = str(uuid.uuid1()).replace('-', '')
         id_file.write(new_uuid)
         id_file.close()
         return new_uuid        
@@ -74,7 +73,6 @@ if __name__ == '__main__':
             if response["message"] == 'New Block Forged':
                 coins_mined += 1
                 print(response["message"])
-                print(response)
                 print(f'{coins_mined} coins mined.')
             else:
                 print(response["message"])
