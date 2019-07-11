@@ -278,10 +278,13 @@ def new_block():
     ## Validate that sender is a valid node
     block = values['block']
     if not blockchain.validate_block(block):
+        ## Request their chain, check for consensus
         return 'Invalid block', 200
-
-    response = block
-    return jsonify(response), 200
+    
+    
+    blockchain.chain.append(block)
+    blockchain.broadcast_new_block(block)
+    return jsonify(block), 200
 
 
 @app.route('/chain', methods=['GET'])
