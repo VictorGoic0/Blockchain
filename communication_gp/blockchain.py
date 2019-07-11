@@ -16,7 +16,17 @@ class Blockchain(object):
         self.current_transactions = []
         self.nodes = set()
 
-        self.new_block(previous_hash=1, proof=100)
+        self.create_genesis_block()
+
+    def create_genesis_block(self):
+        block = {
+            'index': 1,
+            'timestamp': 0,
+            'transactions': [],
+            'proof': 100,
+            'previous_hash': 100
+        }
+        self.chain.append(block)
 
     def new_block(self, proof, previous_hash=None):
         """
@@ -39,6 +49,7 @@ class Blockchain(object):
         self.current_transactions = []
 
         self.chain.append(block)
+        self.broadcast_new_block(block)
         return block
 
     def new_transaction(self, sender, recipient, amount):
@@ -175,6 +186,23 @@ class Blockchain(object):
 
         return False
 
+    def broadcast_new_block(self, block):
+        post_data = {"block": block}
+        for node in self.nodes:
+            r = requests.post(url = f'http://{node}/block/new', json = post_data)
+    
+    def validate_block(self, block):
+        last_block = self.last_block
+        index = block['index']
+        proof = block['proof']
+        last_hash = block['previous_hash']
+        if index == last_block['index'] + 1:
+            if last_hash == self.hash(last_block):
+                if self.valid_proof(last_block['proof'], proof):
+                    return True
+        return False
+
+
 
 # Instantiate our Node
 app = Flask(__name__)
@@ -239,6 +267,21 @@ def new_transaction():
 
     response = {'message': f'Transaction will be added to Block {index}'}
     return jsonify(response), 201
+
+@app.route('/block/new', methods=['POST'])
+def new_block():
+    values = request.get_json()
+
+    if block not in values:
+        return 'No block sent.', 401
+
+    ## Validate that sender is a valid node
+    block = values['block']
+    if not blockchain.validate_block(block):
+        return 'Invalid block', 200
+
+    response = block
+    return jsonify(response), 200
 
 
 @app.route('/chain', methods=['GET'])
