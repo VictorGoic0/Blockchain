@@ -273,17 +273,15 @@ def new_block():
     values = request.get_json()
 
     if block not in values:
-        return 'No block sent.', 401
+        return 'No Block Sent.', 401
 
     ## Validate that sender is a valid node
     block = values['block']
     if not blockchain.validate_block(block):
         ## Request their chain, check for consensus
-        return 'Invalid block', 200
-    
+        return 'Block Rejected.', 200
     
     blockchain.chain.append(block)
-    blockchain.broadcast_new_block(block)
     return jsonify(block), 200
 
 
