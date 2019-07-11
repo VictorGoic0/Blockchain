@@ -6,8 +6,6 @@ import uuid
 import sys
 
 
-# TODO: Implement functionality to search for a proof 
-
 def valid_proof(last_proof, proof):
     guess = f'{last_proof}{proof}'.encode()
     guess_hash = hashlib.sha256(guess).hexdigest()

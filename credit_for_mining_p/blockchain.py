@@ -233,7 +233,7 @@ def mine():
 
     if valid_proof:
         # Forge the new Block by adding it to the chain
-        blockchain.new_transaction(sender=sender, recipient=node_identifier, amount=1)
+        blockchain.new_transaction(sender=node_identifier, recipient=sender, amount=1)
         previous_hash = blockchain.hash(last_block)
         block = blockchain.new_block(proof, previous_hash)
 
@@ -270,7 +270,7 @@ def new_transaction():
 def new_block():
     values = request.get_json()
 
-    if block not in values:
+    if 'block' not in values:
         return 'No Block Sent.', 401
 
     ## Validate that sender is a valid node
