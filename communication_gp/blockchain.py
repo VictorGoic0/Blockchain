@@ -190,6 +190,8 @@ class Blockchain(object):
         post_data = {"block": block}
         for node in self.nodes:
             r = requests.post(url = f'http://{node}/block/new', json = post_data)
+            if r.status_code != 200:
+                pass
     
     def validate_block(self, block):
         last_block = self.last_block
@@ -279,7 +281,11 @@ def new_block():
     block = values['block']
     if not blockchain.validate_block(block):
         ## Request their chain, check for consensus
-        return 'Block Rejected.', 200
+        # TODO: This locks both servers while they await a response
+        # from the other server
+        print('seeking consensus', file=sys.stderr)
+        consensus()
+        return 'Seeking consensus from network', 200
     
     blockchain.chain.append(block)
     return jsonify(block), 200
