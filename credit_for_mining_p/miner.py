@@ -11,7 +11,7 @@ import sys
 def valid_proof(last_proof, proof):
     guess = f'{last_proof}{proof}'.encode()
     guess_hash = hashlib.sha256(guess).hexdigest()
-    return guess_hash[:6] == "000000"
+    return guess_hash[:2] == "00"
 
 def proof_of_work(last_proof):
     proof = 0
@@ -26,11 +26,11 @@ def fetch_last_proof():
     data = response.json()
     return data['last_proof']
 
-def mine_block(proof, uuid):
+def mine_block(proof, unique_id):
     URL = 'http://localhost:5000/mine'
     request = {
         "proof": proof,
-        "sender": uuid
+        "sender": unique_id
     } 
     response = requests.post(url = URL, json = request)
     return response.json()
@@ -38,14 +38,17 @@ def mine_block(proof, uuid):
 def get_uuid():
     try:
         id_file = open('my_id.txt')
-        uuid = id_file.read()
-        print(uuid, '<--from file')
-        return uuid
+        unique_id = id_file.read()
+        if unique_id:
+            print(unique_id, '<--from file')
+            id_file.close()
+            return unique_id
     except:
         id_file = open('my_id.txt', 'w')
-        uuid = uuid.uuid1()
-        id_file.write(uuid)
-        return uuid        
+        new_uuid = str(uuid.uuid1())
+        id_file.write(new_uuid)
+        id_file.close()
+        return new_uuid        
 
 
 if __name__ == '__main__':
@@ -56,6 +59,7 @@ if __name__ == '__main__':
         node = "http://localhost:5000"
 
     coins_mined = 0
+    unique_id = get_uuid()
     # Run forever until interrupted
     while True:
         last_proof = fetch_last_proof()
@@ -65,12 +69,12 @@ if __name__ == '__main__':
         end_time = time.time()
         time_elapsed = end_time - start_time
         print(f"Proof calculated in {time_elapsed} seconds.")
-        uuid = get_uuid()
-        response = mine_block(proof, uuid)
+        response = mine_block(proof, unique_id)
         if response:
             if response["message"] == 'New Block Forged':
                 coins_mined += 1
                 print(response["message"])
+                print(response)
                 print(f'{coins_mined} coins mined.')
             else:
                 print(response["message"])

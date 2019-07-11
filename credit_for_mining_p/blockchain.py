@@ -111,7 +111,7 @@ class Blockchain(object):
         """
         guess = f'{last_proof}{proof}'.encode()
         guess_hash = hashlib.sha256(guess).hexdigest()
-        return guess_hash[:6] == "000000"
+        return guess_hash[:2] == "00"
 
     def valid_chain(self, chain):
         """
@@ -233,7 +233,7 @@ def mine():
 
     if valid_proof:
         # Forge the new Block by adding it to the chain
-        block_chain.new_transaction(sender=sender, recipient=node_identifier, amount=1)
+        blockchain.new_transaction(sender=sender, recipient=node_identifier, amount=1)
         previous_hash = blockchain.hash(last_block)
         block = blockchain.new_block(proof, previous_hash)
 
